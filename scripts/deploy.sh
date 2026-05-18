@@ -10,10 +10,16 @@ if [[ -z "$GRAFANA_PASSWORD" ]]; then
   exit 1
 fi
 
-# Application workloads (Kustomize)
+ENV="${ENV:-prod}"
+if [[ "$ENV" != "dev" && "$ENV" != "prod" ]]; then
+  echo "Error: ENV must be 'dev' or 'prod' (got: $ENV)"
+  exit 1
+fi
 
-echo "==> Deploying application workloads"
-kubectl apply -k "$REPO_ROOT/kubernetes/ressources"
+# Application workloads, apply the overlay, not the raw base
+# The overlay includes Gateway API routes + tagged images + env patches
+echo "==> Deploying application workloads (overlay: $ENV)"
+kubectl apply -k "$REPO_ROOT/kubernetes/overlays/$ENV"
 
 # Observability kube-prometheus-stack (Prometheus + Grafana)
 echo "==> Deploying kube-prometheus-stack"

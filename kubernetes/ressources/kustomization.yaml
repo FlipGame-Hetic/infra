@@ -1,5 +1,7 @@
 resources:
   - namespace
   - backend
-  - frontend
+  - front-screen
+  - back-screen
+  - dmd-screen
   - postgres

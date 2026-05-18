@@ -1,51 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: front-screen
   namespace: game-system
   labels:
-    app.kubernetes.io/name: frontend
+    app.kubernetes.io/name: front-screen
     app.kubernetes.io/part-of: flipper
-    app.kubernetes.io/component: web
+    app.kubernetes.io/component: screen
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/version: "1.0.0"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: frontend
+      app.kubernetes.io/name: front-screen
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: frontend
+        app.kubernetes.io/name: front-screen
         app.kubernetes.io/part-of: flipper
-        app.kubernetes.io/component: web
+        app.kubernetes.io/component: screen
     spec:
       containers:
-        - name: frontend
-          image: frontend:latest
+        - name: front-screen
+          image: front-screen:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3000
-          envFrom:
-            - configMapRef:
-                name: frontend-config
+            - containerPort: 80
           resources:
             requests:
               cpu: 50m
-              memory: 128Mi
+              memory: 64Mi
             limits:
-              cpu: 250m
-              memory: 256Mi
+              cpu: 200m
+              memory: 128Mi
           readinessProbe:
             httpGet:
               path: /
-              port: 3000
-            initialDelaySeconds: 10
+              port: 80
+            initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 3000
-            initialDelaySeconds: 30
+              port: 80
+            initialDelaySeconds: 15
             periodSeconds: 30

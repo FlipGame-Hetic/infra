@@ -40,9 +40,7 @@ echo "==> Node token retrieved"
 for AGENT_IP in "${AGENT_IPS[@]}"; do
   echo "==> Joining agent $AGENT_IP to cluster"
   ssh "root@$AGENT_IP" bash <<REMOTE
-K3S_URL=https://${SERVER_IP}:6443
-K3S_TOKEN=${K3S_TOKEN}
-curl -sfL https://get.k3s.io | sh -
+curl -sfL https://get.k3s.io | K3S_URL=https://${SERVER_IP}:6443 K3S_TOKEN=${K3S_TOKEN} sh -
 REMOTE
 done
 
@@ -71,7 +69,7 @@ helm upgrade --install traefik traefik/traefik \
 
 # Namespaces
 echo "==> Creating namespaces"
-kubectl apply -k "$REPO_ROOT/kubernetes/ressources/namespaces"
+kubectl apply -k "$REPO_ROOT/kubernetes/ressources/namespace"
 
 echo ""
 echo "Bootstrap complete. Run ./scripts/deploy.sh to deploy the application."

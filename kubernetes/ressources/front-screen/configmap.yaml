@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: front-screen-config
+  namespace: game-system
+  labels:
+    app.kubernetes.io/name: front-screen
+    app.kubernetes.io/part-of: flipper
+    app.kubernetes.io/component: screen
+    app.kubernetes.io/managed-by: kustomize
+# NOTE: VITE_* variables are baked into the JS bundle at image build time.
+# These values must be passed as Docker --build-arg, not injected at runtime.
+# This ConfigMap documents the expected build-time values per environment.
+# CI/CD must read these and pass them as --build-arg VITE_WS_URL=... etc.
+data:
+  VITE_WS_URL: "ws://localhost/ws/bridge"
+  VITE_SCREEN_HUB_URL: "ws://localhost"

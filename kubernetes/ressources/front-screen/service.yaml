@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: front-screen
   namespace: game-system
   labels:
-    app.kubernetes.io/name: frontend
+    app.kubernetes.io/name: front-screen
     app.kubernetes.io/part-of: flipper
-    app.kubernetes.io/component: web
+    app.kubernetes.io/component: screen
     app.kubernetes.io/managed-by: kustomize
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: frontend
+    app.kubernetes.io/name: front-screen
   ports:
-    - port: 3000
-      targetPort: 3000
+    - port: 80
+      targetPort: 80

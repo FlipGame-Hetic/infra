@@ -10,9 +10,15 @@ images:
   - name: backend
     newName: ghcr.io/flipgame-hetic/backend
     newTag: "1.0.0"
-  - name: frontend
-    newName: ghcr.io/flipgame-hetic/frontend
+  - name: front-screen
+    newName: ghcr.io/flipgame-hetic/front-screen
+    newTag: "1.0.0"
+  - name: back-screen
+    newName: ghcr.io/flipgame-hetic/back-screen
+    newTag: "1.0.0"
+  - name: dmd-screen
+    newName: ghcr.io/flipgame-hetic/dmd-screen
     newTag: "1.0.0"
 
 patches:
-  - path: patches/frontend-config.yaml
+  - path: patches/screens-config.yaml
