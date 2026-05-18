@@ -1,0 +1,34 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+
+# Kubeconfig
+kubeconfig
+kubeconfig.yaml
+*.kubeconfig
+/tmp/k3s.yaml
+
+# Terraform (TBD)
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+
+# Helm cache
+charts/
+.helm/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo

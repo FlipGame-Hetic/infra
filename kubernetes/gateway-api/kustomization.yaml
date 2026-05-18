@@ -1,0 +1,5 @@
+# HTTPRoutes partagées entre tous les environnements.
+# Le Gateway + GatewayClass sont dans gateway-api/traefik/ (prod) ou gateway-api/nginx/ (dev).
+resources:
+  - httproute-backend.yaml
+  - httproute-frontend.yaml

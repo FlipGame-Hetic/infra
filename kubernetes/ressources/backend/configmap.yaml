@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: game-system
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: flipper
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: kustomize
+data:
+  DATABASE_HOST: postgres
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: flipper
+  DATABASE_USER: flipper

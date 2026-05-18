@@ -1,0 +1,29 @@
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 10Gi
+    # Scrape ServiceMonitors from all namespaces, not just the release namespace
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector: {}
+
+grafana:
+  # Password injected at install time via --set grafana.adminPassword=<secret>
+  adminPassword: ""
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 2Gi
+
+alertmanager:
+  enabled: true
+
+defaultRules:
+  create: true
