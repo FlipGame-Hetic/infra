@@ -9,16 +9,16 @@ resources:
 images:
   - name: backend
     newName: ghcr.io/flipgame-hetic/backend
-    newTag: "1.0.0"
+    newTag: prod
   - name: front-screen
     newName: ghcr.io/flipgame-hetic/front-screen
-    newTag: "1.0.0"
+    newTag: prod
   - name: back-screen
     newName: ghcr.io/flipgame-hetic/back-screen
-    newTag: "1.0.0"
+    newTag: prod
   - name: dmd-screen
     newName: ghcr.io/flipgame-hetic/dmd-screen
-    newTag: "1.0.0"
+    newTag: prod
 
 patches:
   - path: patches/screens-config.yaml
