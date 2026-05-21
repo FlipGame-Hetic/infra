@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/version: "1.0.0"
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: backend
@@ -32,16 +32,14 @@ spec:
             - configMapRef:
                 name: backend-config
           env:
-            - name: DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
             - name: SCREEN_JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: backend-secret
                   key: SCREEN_JWT_SECRET
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /data
           resources:
             requests:
               cpu: 100m
@@ -61,3 +59,7 @@ spec:
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 30
+      volumes:
+        - name: sqlite-data
+          persistentVolumeClaim:
+            claimName: backend-sqlite-pvc

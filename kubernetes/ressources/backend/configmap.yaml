@@ -12,7 +12,4 @@ data:
   API_PORT: "8080"
   APP_ENV: production
   ALLOWED_ORIGINS: "http://localhost:3000"
-  DATABASE_HOST: postgres
-  DATABASE_PORT: "5432"
-  DATABASE_NAME: flipper
-  DATABASE_USER: flipper
+  DATABASE_URL: "sqlite:////data/flipper.db"
