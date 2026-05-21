@@ -10,7 +10,20 @@ if [[ -z "$GRAFANA_PASSWORD" ]]; then
   exit 1
 fi
 
-ENV="${ENV:-prod}"
+# Auto-detect overlay from the GatewayClass available in the cluster.
+# ENV can still be forced explicitly: ENV=dev ./scripts/deploy.sh
+if [[ -z "${ENV:-}" ]]; then
+  if kubectl get gatewayclass traefik &>/dev/null 2>&1; then
+    ENV="prod"
+  elif kubectl get gatewayclass nginx &>/dev/null 2>&1; then
+    ENV="dev"
+  else
+    echo "Error: could not detect GatewayClass (traefik/nginx). Set ENV=dev|prod explicitly."
+    exit 1
+  fi
+  echo "==> Auto-detected ENV=$ENV from GatewayClass"
+fi
+
 if [[ "$ENV" != "dev" && "$ENV" != "prod" ]]; then
   echo "Error: ENV must be 'dev' or 'prod' (got: $ENV)"
   exit 1

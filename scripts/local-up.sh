@@ -216,15 +216,44 @@ deploy_observability() {
     --timeout 3m
 }
 
+# Port-forward Grafana in background
+start_grafana_portforward() {
+  # Kill any existing port-forward on 3004 to avoid conflicts
+  if lsof -ti:3004 &>/dev/null; then
+    warn "Port 3004 already in use — killing existing process..."
+    kill "$(lsof -ti:3004)" 2>/dev/null || true
+    sleep 1
+  fi
+  log "Starting Grafana port-forward on http://localhost:3004 ..."
+  kubectl port-forward svc/kube-prom-grafana 3004:80 -n monitoring \
+    >/tmp/grafana-portforward.log 2>&1 &
+  disown
+  # Wait briefly so the tunnel is ready before printing the summary
+  sleep 2
+}
+
 # Summary
 print_summary() {
   echo ""
-  echo -e "${GREEN}Local cluster is up.${NC}"
+  echo -e "${GREEN}╔══════════════════════════════════════════════════════╗${NC}"
+  echo -e "${GREEN}║           Local cluster is up and running            ║${NC}"
+  echo -e "${GREEN}╚══════════════════════════════════════════════════════╝${NC}"
   echo ""
-  echo "  Grafana   →  kubectl port-forward svc/kube-prom-grafana 3000:80 -n monitoring"
-  echo "               http://localhost:3000  (admin / $GRAFANA_PASSWORD)"
+  echo -e "  ${GREEN}Frontends${NC} (*.localhost → port 80 via k3d loadbalancer)"
+  echo "    Front screen  →  http://front.localhost"
+  echo "    Back screen   →  http://back.localhost"
+  echo "    DMD screen    →  http://dmd.localhost"
   echo ""
-  echo "  Teardown  →  k3d cluster delete $CLUSTER_NAME"
+  echo -e "  ${GREEN}Backend API${NC}"
+  echo "    REST API       →  http://localhost:8080/docs"
+  echo ""
+  echo -e "  ${GREEN}Observability${NC}"
+  echo "    Grafana        →  http://localhost:3004  (admin / $GRAFANA_PASSWORD)"
+  echo "    (port-forward running in background — logs: /tmp/grafana-portforward.log)"
+  echo ""
+  echo -e "  ${GREEN}Teardown${NC}"
+  echo "    k3d cluster delete $CLUSTER_NAME"
+  echo ""
 }
 
 main() {
@@ -238,6 +267,7 @@ main() {
   deploy_app
   deploy_observability
   wait_for_pods
+  start_grafana_portforward
   print_summary
 }
 

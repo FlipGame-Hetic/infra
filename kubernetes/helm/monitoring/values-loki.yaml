@@ -29,16 +29,6 @@ singleBinary:
     storageClass: local-path
     size: 10Gi
 
-# Auto-provision Grafana datasource so Loki appears without manual configuration
-grafana:
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: Loki
-          type: loki
-          url: http://loki:3100
-
 # Disable components unused in single-binary mode
 backend:
   replicas: 0

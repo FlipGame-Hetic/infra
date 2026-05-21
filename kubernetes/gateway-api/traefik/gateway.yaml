@@ -9,10 +9,12 @@ metadata:
 spec:
   gatewayClassName: traefik
   listeners:
-    - name: http
-      port: 80
+    # Traefik's "web" entryPoint listens on :8000 internally (K3s default).
+    # The Service maps 80→8000 externally, but the Gateway listener must match
+    # the actual entryPoint port so Traefik can bind the routes.
+    - name: web
+      port: 8000
       protocol: HTTP
-      # allowedRoutes restricts which namespaces can bind HTTPRoutes to this Gateway
       allowedRoutes:
         namespaces:
           from: Same

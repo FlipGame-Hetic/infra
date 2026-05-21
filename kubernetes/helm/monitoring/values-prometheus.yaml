@@ -21,6 +21,17 @@ grafana:
     enabled: true
     storageClassName: local-path
     size: 2Gi
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      access: proxy
+      isDefault: false
+      jsonData:
+        # Loki runs with auth_enabled: true — every request must carry a tenant ID
+        httpHeaderName1: "X-Scope-OrgID"
+      secureJsonData:
+        httpHeaderValue1: "1"
 
 alertmanager:
   enabled: true
