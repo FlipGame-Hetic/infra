@@ -9,7 +9,9 @@ metadata:
     app.kubernetes.io/component: api
     app.kubernetes.io/managed-by: kustomize
 data:
-  API_PORT: "8000"
+  API_PORT: "8080"
+  APP_ENV: production
+  ALLOWED_ORIGINS: "http://localhost:3000"
   DATABASE_HOST: postgres
   DATABASE_PORT: "5432"
   DATABASE_NAME: flipper

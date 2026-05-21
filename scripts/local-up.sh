@@ -8,6 +8,7 @@ CLUSTER_NAME="flipper-local"
 GRAFANA_PASSWORD="${GRAFANA_PASSWORD:-admin}"
 GHCR_TOKEN="${GHCR_TOKEN:-}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-flipper}"
+SCREEN_JWT_SECRET="${SCREEN_JWT_SECRET:-$(openssl rand -base64 32)}"
 
 # Colors
 RED='\033[0;31m'
@@ -100,6 +101,16 @@ create_secrets() {
       --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
   fi
 
+  # backend-secret
+  if kubectl get secret backend-secret -n game-system &>/dev/null; then
+    warn "Secret 'backend-secret' already exists — skipping."
+  else
+    log "Creating backend-secret..."
+    kubectl create secret generic backend-secret \
+      --namespace game-system \
+      --from-literal=SCREEN_JWT_SECRET="$SCREEN_JWT_SECRET"
+  fi
+
   # GHCR imagePullSecret
   if [[ -z "$GHCR_TOKEN" ]]; then
     warn "GHCR_TOKEN not set — skipping imagePullSecret creation."
@@ -120,6 +131,21 @@ create_secrets() {
     kubectl patch serviceaccount default -n game-system \
       -p '{"imagePullSecrets":[{"name":"ghcr-pull-secret"}]}'
   fi
+}
+
+# Pre-load public Docker Hub images to avoid rate-limit failures at runtime
+preload_images() {
+  local images=("postgres:16-alpine")
+  for image in "${images[@]}"; do
+    log "Pre-loading $image into k3d cluster..."
+    if docker image inspect "$image" &>/dev/null; then
+      log "  $image already in local Docker cache — importing."
+    else
+      log "  Pulling $image from Docker Hub..."
+      docker pull "$image"
+    fi
+    k3d image import "$image" -c "$CLUSTER_NAME"
+  done
 }
 
 # App workloads
@@ -208,6 +234,7 @@ main() {
   install_traefik
   create_namespaces
   create_secrets
+  preload_images
   deploy_app
   deploy_observability
   wait_for_pods

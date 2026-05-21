@@ -27,7 +27,7 @@ spec:
           # IfNotPresent avoids redundant pulls on each restart when using a fixed tag
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
           envFrom:
             - configMapRef:
                 name: backend-config
@@ -37,6 +37,11 @@ spec:
                 secretKeyRef:
                   name: postgres-secret
                   key: POSTGRES_PASSWORD
+            - name: SCREEN_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SCREEN_JWT_SECRET
           resources:
             requests:
               cpu: 100m
@@ -47,12 +52,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /health
-              port: 8000
+              port: 8080
             initialDelaySeconds: 30
             periodSeconds: 30
