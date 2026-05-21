@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - ../../ressources
   - ../../gateway-api
-  - ../../gateway-api/nginx
+  - ../../gateway-api/traefik
 
 images:
   - name: backend
