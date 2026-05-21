@@ -6,6 +6,8 @@ REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 CLUSTER_NAME="flipper-local"
 GRAFANA_PASSWORD="${GRAFANA_PASSWORD:-admin}"
+GHCR_TOKEN="${GHCR_TOKEN:-}"
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-flipper}"
 
 # Colors
 RED='\033[0;31m'
@@ -67,6 +69,10 @@ install_gateway_crds() {
 
 # Traefik
 install_traefik() {
+  if helm status traefik --namespace kube-system &>/dev/null; then
+    warn "Helm release 'traefik' already deployed in kube-system — skipping."
+    return
+  fi
   log "Installing Traefik via Helm..."
   helm repo add traefik https://traefik.github.io/charts --force-update 2>/dev/null
   helm upgrade --install traefik traefik/traefik \
@@ -82,10 +88,85 @@ create_namespaces() {
   kubectl apply -k "$REPO_ROOT/kubernetes/ressources/namespace"
 }
 
+# Secrets
+create_secrets() {
+  # postgres-secret
+  if kubectl get secret postgres-secret -n game-system &>/dev/null; then
+    warn "Secret 'postgres-secret' already exists — skipping."
+  else
+    log "Creating postgres-secret..."
+    kubectl create secret generic postgres-secret \
+      --namespace game-system \
+      --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
+  fi
+
+  # GHCR imagePullSecret
+  if [[ -z "$GHCR_TOKEN" ]]; then
+    warn "GHCR_TOKEN not set — skipping imagePullSecret creation."
+    warn "App images (ghcr.io/flipgame-hetic/*) may fail to pull if the registry is private."
+    warn "Set GHCR_TOKEN=<your-github-pat> and rerun to fix."
+    return
+  fi
+  if kubectl get secret ghcr-pull-secret -n game-system &>/dev/null; then
+    warn "Secret 'ghcr-pull-secret' already exists — skipping."
+  else
+    log "Creating ghcr-pull-secret..."
+    kubectl create secret docker-registry ghcr-pull-secret \
+      --namespace game-system \
+      --docker-server=ghcr.io \
+      --docker-username=flipgame-hetic \
+      --docker-password="$GHCR_TOKEN"
+    # Patch the default serviceaccount so all pods pick it up automatically
+    kubectl patch serviceaccount default -n game-system \
+      -p '{"imagePullSecrets":[{"name":"ghcr-pull-secret"}]}'
+  fi
+}
+
 # App workloads
 deploy_app() {
   log "Deploying application (overlay: dev)..."
   kubectl apply -k "$REPO_ROOT/kubernetes/overlays/dev"
+}
+
+# Health check
+wait_for_pods() {
+  log "Waiting for pods in game-system to be Ready (timeout: 3m)..."
+  local deadline=$(( $(date +%s) + 180 ))
+  local all_ready=false
+
+  while [[ $(date +%s) -lt $deadline ]]; do
+    local total
+    local ready
+    total=$(kubectl get pods -n game-system --no-headers 2>/dev/null | wc -l)
+    ready=$(kubectl get pods -n game-system --no-headers 2>/dev/null | grep -c "Running" || true)
+
+    if [[ "$total" -gt 0 && "$ready" -eq "$total" ]]; then
+      all_ready=true
+      break
+    fi
+    echo -n "."
+    sleep 5
+  done
+  echo ""
+
+  if [[ "$all_ready" == "true" ]]; then
+    log "All pods are Ready."
+  else
+    warn "Some pods are not Ready after 3 minutes. Current state:"
+    kubectl get pods -n game-system
+    echo ""
+    warn "Pods with issues:"
+    kubectl get pods -n game-system --no-headers \
+      | grep -v "Running" \
+      | awk '{print $1}' \
+      | while read -r pod; do
+          echo ""
+          echo -e "${RED}--- $pod ---${NC}"
+          kubectl describe pod "$pod" -n game-system \
+            | grep -A 10 "Events:" | tail -10
+        done
+    die "Fix the issues above then rerun ./scripts/local-up.sh"
+  fi
 }
 
 # Observability
@@ -126,8 +207,10 @@ main() {
   install_gateway_crds
   install_traefik
   create_namespaces
+  create_secrets
   deploy_app
   deploy_observability
+  wait_for_pods
   print_summary
 }
 

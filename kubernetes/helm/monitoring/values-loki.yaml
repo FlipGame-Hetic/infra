@@ -5,6 +5,8 @@ loki:
     retention_period: 15d
   compactor:
     retention_enabled: true
+    # Required in Loki 3.x when retention is enabled: must match storage.type
+    delete_request_store: filesystem
   commonConfig:
     replication_factor: 1
   storage:
