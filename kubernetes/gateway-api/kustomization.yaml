@@ -1,5 +1,5 @@
 # HTTP routes shared across all environments
-# The Gateway and GatewayClass are located in gateway-api/traefik/ (prod) or gateway-api/nginx/ (dev)
+# The Gateway and GatewayClass are in gateway-api/traefik/ (used by both dev and prod overlays)
 resources:
   - httproute-backend.yaml
   - httproute-front-screen.yaml
