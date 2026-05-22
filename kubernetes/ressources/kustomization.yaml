@@ -1,0 +1,6 @@
+resources:
+  - namespace
+  - backend
+  - front-screen
+  - back-screen
+  - dmd-screen

@@ -1,0 +1,7 @@
+# HTTP routes shared across all environments
+# The Gateway and GatewayClass are in gateway-api/traefik/ (used by both dev and prod overlays)
+resources:
+  - httproute-backend.yaml
+  - httproute-front-screen.yaml
+  - httproute-back-screen.yaml
+  - httproute-dmd-screen.yaml

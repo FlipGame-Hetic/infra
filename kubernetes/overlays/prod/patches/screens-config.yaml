@@ -1,0 +1,31 @@
+# IMPORTANT: VITE_* values here are documentation only.
+# They must be passed as Docker --build-arg at image build time, not injected at runtime.
+# Example CI step:
+#   docker build --build-arg VITE_WS_URL=wss://api.flipper.example.com/ws/bridge \
+#                --build-arg VITE_SCREEN_HUB_URL=wss://api.flipper.example.com \
+#                --build-arg VITE_SCREEN_TOKEN=<token> ...
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: front-screen-config
+  namespace: game-system
+data:
+  VITE_WS_URL: "wss://api.flipper.example.com/ws/bridge"
+  VITE_SCREEN_HUB_URL: "wss://api.flipper.example.com"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: back-screen-config
+  namespace: game-system
+data:
+  VITE_SCREEN_HUB_URL: "wss://api.flipper.example.com"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dmd-screen-config
+  namespace: game-system
+data:
+  VITE_SCREEN_HUB_URL: "wss://api.flipper.example.com"

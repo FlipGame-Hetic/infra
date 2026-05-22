@@ -1,0 +1,38 @@
+deploymentMode: SingleBinary
+
+loki:
+  limits_config:
+    retention_period: 15d
+  compactor:
+    retention_enabled: true
+    # Required in Loki 3.x when retention is enabled: must match storage.type
+    delete_request_store: filesystem
+  commonConfig:
+    replication_factor: 1
+  storage:
+    # Filesystem storage backed by a local-path PVC (sufficient for a 2-node bare-metal cluster)
+    type: filesystem
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 10Gi
+
+# Disable components unused in single-binary mode
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0

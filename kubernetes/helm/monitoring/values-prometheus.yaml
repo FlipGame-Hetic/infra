@@ -1,0 +1,40 @@
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 10Gi
+    # Scrape ServiceMonitors from all namespaces, not just the release namespace
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector: {}
+
+grafana:
+  # Password injected at install time via --set grafana.adminPassword=<secret>
+  adminPassword: ""
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 2Gi
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.monitoring.svc.cluster.local
+      access: proxy
+      isDefault: false
+      jsonData:
+        # Loki runs with auth_enabled: true — every request must carry a tenant ID
+        httpHeaderName1: "X-Scope-OrgID"
+      secureJsonData:
+        httpHeaderValue1: "1"
+
+alertmanager:
+  enabled: true
+
+defaultRules:
+  create: true

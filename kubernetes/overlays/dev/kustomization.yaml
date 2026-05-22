@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../ressources
+  - ../../gateway-api
+  - ../../gateway-api/traefik
+
+images:
+  - name: backend
+    newName: ghcr.io/flipgame-hetic/backend
+    newTag: main
+  - name: front-screen
+    newName: ghcr.io/flipgame-hetic/front-screen
+    newTag: main
+  - name: back-screen
+    newName: ghcr.io/flipgame-hetic/back-screen
+    newTag: main
+  - name: dmd-screen
+    newName: ghcr.io/flipgame-hetic/dmd-screen
+    newTag: main
+
+patches:
+  - path: patches/backend.yaml
+  - path: patches/screens-config.yaml
+  - path: patches/httproutes.yaml

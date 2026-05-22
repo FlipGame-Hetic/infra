@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: game-system
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: flipper
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: kustomize
+data:
+  API_PORT: "8080"
+  APP_ENV: production
+  ALLOWED_ORIGINS: "http://localhost:3000"
+  DATABASE_URL: "sqlite:////data/flipper.db"

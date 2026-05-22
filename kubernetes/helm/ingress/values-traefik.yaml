@@ -1,0 +1,28 @@
+providers:
+  kubernetesGateway:
+    # Required to use Gateway API resources (GatewayClass, Gateway, HTTPRoute)
+    # instead of deprecated IngressRoute CRDs
+    enabled: true
+  kubernetesIngress:
+    enabled: false
+
+ports:
+  web:
+    port: 8000        # internal container port (required by gateway.yaml template)
+    exposedPort: 80   # external port on the Service / LoadBalancer
+    expose:
+      default: true
+  websecure:
+    port: 8443
+    exposedPort: 443
+    expose:
+      default: true
+
+service:
+  type: LoadBalancer
+
+logs:
+  general:
+    level: INFO
+  access:
+    enabled: true

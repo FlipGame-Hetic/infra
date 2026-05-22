@@ -1,0 +1,34 @@
+# In dev, screens are accessed via *.localhost subdomains.
+# Most modern browsers resolve *.localhost to 127.0.0.1 automatically (RFC 6761),
+# so no /etc/hosts entries are needed.
+#
+#   front-screen → http://front.localhost
+#   back-screen  → http://back.localhost
+#   dmd-screen   → http://dmd.localhost
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: front-screen-route
+  namespace: game-system
+spec:
+  hostnames:
+    - "front.localhost"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: back-screen-route
+  namespace: game-system
+spec:
+  hostnames:
+    - "back.localhost"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: dmd-screen-route
+  namespace: game-system
+spec:
+  hostnames:
+    - "dmd.localhost"
