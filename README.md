@@ -2,7 +2,6 @@
 
 ## Stack:
 - [K3s](https://k3s.io/)
-- [Terraform](https://www.terraform.io/)
 - [Kustomize](https://kustomize.io/)
 - [Helm](https://helm.sh/)
 - [Grafana](https://grafana.com/)
